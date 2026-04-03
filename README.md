@@ -4,3 +4,4 @@
 - Dashboard
 - Transactions
 - Analytics
+- Themes
