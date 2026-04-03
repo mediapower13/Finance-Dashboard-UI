@@ -6,3 +6,4 @@
 - Analytics
 - Themes
 - Export
+- Role Management
