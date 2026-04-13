@@ -334,6 +334,25 @@ function App() {
     }
   }, [transactions])
 
+  const topCategories = useMemo(() => {
+    const categoryMap = {}
+    transactions.forEach((item) => {
+      if (item.type === 'expense') {
+        categoryMap[item.category] = (categoryMap[item.category] || 0) + item.amount
+      }
+    })
+    return Object.entries(categoryMap)
+      .map(([category, amount]) => ({ category, amount }))
+      .sort((a, b) => b.amount - a.amount)
+      .slice(0, 5)
+  }, [transactions])
+
+  const recentTransactions = useMemo(() => {
+    return transactions
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, 5)
+  }, [transactions])
+
   const linePoints = useMemo(() => {
     if (monthlyTrend.length === 0) {
       return ''
@@ -667,6 +686,47 @@ function App() {
             )
           })}
         </div>
+      </section>
+
+      <section className="layout-grid">
+        <article className="card chart-card">
+          <h2>🔥 Top Spending Categories</h2>
+          {topCategories.length > 0 ? (
+            <div className="top-categories">
+              {topCategories.map((item, idx) => (
+                <div key={item.category} className="category-item">
+                  <span className="category-rank">#{idx + 1}</span>
+                  <span className="category-name">{item.category}</span>
+                  <span className="category-amount">{toCurrency(item.amount)}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="empty">No spending data yet.</p>
+          )}
+        </article>
+
+        <article className="card chart-card">
+          <h2>⏱️ Recent Transactions</h2>
+          {recentTransactions.length > 0 ? (
+            <div className="recent-list">
+              {recentTransactions.map((item) => (
+                <div key={item.id} className="recent-item">
+                  <div className="recent-details">
+                    <p className="recent-desc">{item.description}</p>
+                    <small className="recent-date">{item.date}</small>
+                  </div>
+                  <p className={`recent-amount ${item.type}`}>
+                    {item.type === 'income' ? '+' : '-'}
+                    {toCurrency(item.amount)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="empty">No transactions yet.</p>
+          )}
+        </article>
       </section>
 
       <section className="card transactions-card">
