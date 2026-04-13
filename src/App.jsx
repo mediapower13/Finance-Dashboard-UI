@@ -308,6 +308,32 @@ function App() {
     }
   }, [spendingBreakdown, monthlyTrend, transactions])
 
+  const weeklyStats = useMemo(() => {
+    const today = new Date()
+    const sixDaysAgo = new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000)
+    
+    const weekTransactions = transactions.filter((item) => {
+      const date = new Date(item.date)
+      return date >= sixDaysAgo && date <= today
+    })
+
+    const weekExpenses = weekTransactions
+      .filter((t) => t.type === 'expense')
+      .reduce((sum, t) => sum + t.amount, 0)
+
+    const weekIncome = weekTransactions
+      .filter((t) => t.type === 'income')
+      .reduce((sum, t) => sum + t.amount, 0)
+
+    return {
+      expenses: weekExpenses,
+      income: weekIncome,
+      net: weekIncome - weekExpenses,
+      count: weekTransactions.length,
+      avgDaily: weekTransactions.length > 0 ? weekExpenses / weekTransactions.length : 0,
+    }
+  }, [transactions])
+
   const linePoints = useMemo(() => {
     if (monthlyTrend.length === 0) {
       return ''
@@ -499,6 +525,24 @@ function App() {
           <h2>Total Expenses</h2>
           <p className="big">{toCurrency(summary.expenses)}</p>
           <small>All outgoing cash flow</small>
+        </article>
+      </section>
+
+      <section className="summary-grid">
+        <article className="card highlight">
+          <h2>📅 This Week Income</h2>
+          <p className="big">{toCurrency(weeklyStats.income)}</p>
+          <small>Last 7 days</small>
+        </article>
+        <article className="card expense">
+          <h2>📅 This Week Expenses</h2>
+          <p className="big">{toCurrency(weeklyStats.expenses)}</p>
+          <small>Last 7 days</small>
+        </article>
+        <article className="card highlight">
+          <h2>📅 Weekly Net</h2>
+          <p className="big">{toCurrency(weeklyStats.net)}</p>
+          <small>{weeklyStats.count} transactions</small>
         </article>
       </section>
 
