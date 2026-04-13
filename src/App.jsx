@@ -279,6 +279,22 @@ function App() {
     const largestExpense = transactions
       .filter((item) => item.type === 'expense')
       .sort((a, b) => b.amount - a.amount)[0]
+    
+    const expenseTransactions = transactions.filter((item) => item.type === 'expense')
+    const avgExpense = expenseTransactions.length > 0 
+      ? expenseTransactions.reduce((sum, t) => sum + t.amount, 0) / expenseTransactions.length 
+      : 0
+    
+    const currentMonth = new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })
+    const currentMonthExpenses = transactions
+      .filter((item) => {
+        const date = new Date(item.date)
+        const now = new Date()
+        return item.type === 'expense' && 
+               date.getMonth() === now.getMonth() && 
+               date.getFullYear() === now.getFullYear()
+      })
+      .reduce((sum, t) => sum + t.amount, 0)
 
     return {
       highestCategory,
@@ -286,6 +302,9 @@ function App() {
       previous,
       delta,
       largestExpense,
+      avgExpense,
+      currentMonth,
+      currentMonthExpenses,
     }
   }, [spendingBreakdown, monthlyTrend, transactions])
 
@@ -537,7 +556,7 @@ function App() {
       </section>
 
       <section className="card insights-card">
-        <h2>💡 Insights</h2>
+        <h2>💡 Quick Insights</h2>
         <div className="insights-grid">
           <article>
             <h3>Highest Spending Category</h3>
@@ -562,6 +581,18 @@ function App() {
                 ? `${insights.largestExpense.description} - ${toCurrency(insights.largestExpense.amount)}`
                 : 'No expenses recorded'}
             </p>
+          </article>
+          <article>
+            <h3>Average Expense</h3>
+            <p>{toCurrency(insights.avgExpense)}</p>
+          </article>
+          <article>
+            <h3>This Month Spent</h3>
+            <p>{toCurrency(insights.currentMonthExpenses)}</p>
+          </article>
+          <article>
+            <h3>Period</h3>
+            <p>{insights.currentMonth}</p>
           </article>
         </div>
       </section>
