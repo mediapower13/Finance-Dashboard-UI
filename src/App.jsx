@@ -160,6 +160,13 @@ function App() {
   const [isFormVisible, setIsFormVisible] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(emptyForm)
+  const [budgets] = useLocalStorageState('e-tracker-budgets', {
+    Food: 400,
+    Utilities: 150,
+    Entertainment: 200,
+    Housing: 1400,
+    Shopping: 300,
+  })
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -432,7 +439,7 @@ function App() {
     <div className="dashboard-shell">
       <header className="topbar">
         <div className="topbar-left">
-          <h1>💰 Finance Dashboard</h1>
+          <h1>💰 E-TRACKER</h1>
         </div>
         <div className="topbar-right">
           <div className="role-control">
@@ -556,6 +563,34 @@ function App() {
                 : 'No expenses recorded'}
             </p>
           </article>
+        </div>
+      </section>
+
+      <section className="card insights-card">
+        <h2>📊 Budget Overview</h2>
+        <div className="budget-grid">
+          {Object.entries(budgets).map(([category, limit]) => {
+            const spent = spendingBreakdown.find((b) => b.category === category)?.amount || 0
+            const percentage = limit > 0 ? Math.min((spent / limit) * 100, 100) : 0
+            const isOverBudget = spent > limit
+            return (
+              <div key={category} className="budget-item">
+                <div className="budget-header">
+                  <span className="budget-category">{category}</span>
+                  <span className={`budget-amount ${isOverBudget ? 'over-budget' : ''}`}>
+                    {toCurrency(spent)} / {toCurrency(limit)}
+                  </span>
+                </div>
+                <div className="budget-bar">
+                  <div
+                    className={`budget-fill ${isOverBudget ? 'over' : percentage > 80 ? 'warning' : 'ok'}`}
+                    style={{ width: `${Math.min(percentage, 100)}%` }}
+                  />
+                </div>
+                <p className="budget-status">{percentage.toFixed(0)}% used</p>
+              </div>
+            )
+          })}
         </div>
       </section>
 
