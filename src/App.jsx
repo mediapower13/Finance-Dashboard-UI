@@ -168,6 +168,7 @@ function App() {
     Shopping: 300,
   })
 
+  
   useEffect(() => {
     document.documentElement.dataset.theme = theme
   }, [theme])
@@ -351,6 +352,31 @@ function App() {
     return transactions
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .slice(0, 5)
+  }, [transactions])
+
+  const yearToDateStats = useMemo(() => {
+    const now = new Date()
+    const startOfYear = new Date(now.getFullYear(), 0, 1)
+    
+    const ytdTransactions = transactions.filter((item) => {
+      const date = new Date(item.date)
+      return date >= startOfYear && date <= now
+    })
+
+    const ytdIncome = ytdTransactions
+      .filter((t) => t.type === 'income')
+      .reduce((sum, t) => sum + t.amount, 0)
+
+    const ytdExpenses = ytdTransactions
+      .filter((t) => t.type === 'expense')
+      .reduce((sum, t) => sum + t.amount, 0)
+
+    return {
+      income: ytdIncome,
+      expenses: ytdExpenses,
+      net: ytdIncome - ytdExpenses,
+      count: ytdTransactions.length,
+    }
   }, [transactions])
 
   const linePoints = useMemo(() => {
