@@ -18,6 +18,7 @@
   font-weight: 500;
 }
 
+
 :root[data-theme='dark'] {
   --ink: #bac7d2;
   --ink-strong: #f2f7fb;
