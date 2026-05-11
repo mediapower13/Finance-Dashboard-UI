@@ -350,6 +350,7 @@ function App() {
 
   const recentTransactions = useMemo(() => {
     return transactions
+      .slice()
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .slice(0, 5)
   }, [transactions])
