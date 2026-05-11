@@ -118,14 +118,31 @@ function toCurrency(value) {
 
 function useLocalStorageState(key, fallback) {
   const [value, setValue] = useState(() => {
-    const saved = localStorage.getItem(key)
-    return saved ? JSON.parse(saved) : fallback
+    try {
+      const saved = localStorage.getItem(key)
+      if (!saved) {
+        return fallback
+      }
+
+      const parsed = JSON.parse(saved)
+      if (key === 'finance-dashboard-theme') {
+        return parsed === 'light' || parsed === 'dark' ? parsed : fallback
+      }
+
+      return parsed
+    } catch {
+      return fallback
+    }
   })
 
   const updateValue = (next) => {
     setValue((previous) => {
       const resolved = typeof next === 'function' ? next(previous) : next
-      localStorage.setItem(key, JSON.stringify(resolved))
+      try {
+        localStorage.setItem(key, JSON.stringify(resolved))
+      } catch {
+        // Ignore storage failures so the UI stays usable.
+      }
       return resolved
     })
   }
@@ -547,7 +564,7 @@ function App() {
           <button
             type="button"
             className="theme-toggle"
-            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+            onClick={() => setTheme((currentTheme) => (currentTheme === 'light' ? 'dark' : 'light'))}
             aria-label="Toggle theme"
             title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
           >
