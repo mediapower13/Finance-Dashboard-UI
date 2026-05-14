@@ -1,3 +1,3 @@
 export const formatCurrency = (value) => {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value)
-}
+}// Finance app update 5
